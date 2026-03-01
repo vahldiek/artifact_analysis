@@ -1,0 +1,82 @@
+name: DBLP Author Analysis
+
+on:
+  # Run weekly on Sundays at 12:00 UTC (before monthly stats update)
+  schedule:
+    - cron: '0 12 * * 0'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  dblp-analysis:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Cache DBLP database
+        uses: actions/cache@v4
+        with:
+          path: dblp.xml.gz
+          key: dblp-${{ hashFiles('cache-version.txt') }}
+          restore-keys: |
+            dblp-
+      
+      - name: Download DBLP if not cached
+        run: |
+          if [ ! -f dblp.xml.gz ]; then
+            echo "Downloading DBLP database (~3GB)..."
+            wget -q https://dblp.org/xml/dblp.xml.gz
+            echo "Download complete"
+          else
+            echo "Using cached DBLP database"
+          fi
+      
+      - name: Generate author statistics
+        run: |
+          python generate_author_stats.py \
+            --dblp_file dblp.xml.gz \
+            --data_dir . \
+            --output_dir .
+      
+      - name: Generate per-area author data
+        run: |
+          python generate_area_authors.py --data_dir .
+      
+      - name: Upload DBLP analysis results
+        uses: actions/upload-artifact@v4
+        with:
+          name: dblp-analysis-results
+          path: |
+            _data/authors.yml
+            _data/author_summary.yml
+            _data/systems_authors.yml
+            _data/security_authors.yml
+            assets/data/authors.json
+            assets/data/systems_authors.json
+            assets/data/security_authors.json
+          retention-days: 7
+      
+      - name: Summary
+        run: |
+          echo "## DBLP Author Analysis Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ DBLP database processed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Author statistics generated" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Per-area author data created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Files uploaded as artifact and will be used by next statistics update" >> $GITHUB_STEP_SUMMARY

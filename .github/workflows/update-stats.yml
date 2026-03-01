@@ -7,11 +7,6 @@ on:
   
   # Allow manual trigger
   workflow_dispatch:
-    inputs:
-      skip_dblp:
-        description: 'Skip DBLP author analysis (faster for testing)'
-        required: false
-        default: 'false'
 
 jobs:
   update-statistics:
@@ -75,40 +70,32 @@ jobs:
           ls -lh website/assets/charts/
           echo "Files generated successfully!"
       
-      - name: Cache DBLP database
-        if: github.event.inputs.skip_dblp != 'true'
-        uses: actions/cache@v4
-        with:
-          path: artifact_analysis/dblp.xml.gz
-          key: dblp-${{ hashFiles('artifact_analysis/cache-version.txt') }}
-          restore-keys: |
-            dblp-
-      
-      - name: Download DBLP if not cached
-        if: github.event.inputs.skip_dblp != 'true'
-        run: |
-          cd artifact_analysis
-          if [ ! -f dblp.xml.gz ]; then
-            echo "Downloading DBLP database..."
-            wget -q https://dblp.org/xml/dblp.xml.gz
-            echo "Download complete"
-          else
-            echo "Using cached DBLP database"
-          fi
-      
-      - name: Generate author statistics
-        if: github.event.inputs.skip_dblp != 'true'
-        run: |
-          cd artifact_analysis
-          python generate_author_stats.py \
-            --dblp_file dblp.xml.gz \
-            --data_dir ../website \
-            --output_dir ../website
-
       - name: Generate per-area author data
         run: |
           cd artifact_analysis
           python generate_area_authors.py --data_dir ../website
+      
+      - name: Download DBLP author analysis artifact (if available)
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: dblp-author-analysis.yml
+          workflow_conclusion: success
+          name: dblp-analysis-results
+          path: dblp-results/
+          skip_unpack: false
+        continue-on-error: true
+      
+      - name: Merge DBLP results if available
+        run: |
+          if [ -d "dblp-results" ] && [ "$(ls -A dblp-results)" ]; then
+            echo "Found DBLP analysis results, merging into website..."
+            cp -r dblp-results/_data/* website/_data/ 2>/dev/null || true
+            cp -r dblp-results/assets/data/* website/assets/data/ 2>/dev/null || true
+            echo "DBLP results merged successfully"
+          else
+            echo "⚠️ No recent DBLP analysis results found"
+            echo "Note: DBLP author analysis runs separately - see dblp-author-analysis workflow"
+          fi
       
       - name: Commit and push changes
         run: |
@@ -135,11 +122,7 @@ jobs:
           echo "✅ Statistics generated" >> $GITHUB_STEP_SUMMARY
           echo "✅ Repository statistics collected" >> $GITHUB_STEP_SUMMARY
           echo "✅ Visualizations created" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ github.event.inputs.skip_dblp }}" != "true" ]; then
-            echo "✅ Author statistics updated" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⏭️ Author statistics skipped" >> $GITHUB_STEP_SUMMARY
-          fi
           echo "✅ Per-area author data generated" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 Author DBLP analysis runs separately (workflow: dblp-author-analysis)" >> $GITHUB_STEP_SUMMARY
           echo "🌐 Website will rebuild automatically via GitHub Pages" >> $GITHUB_STEP_SUMMARY
