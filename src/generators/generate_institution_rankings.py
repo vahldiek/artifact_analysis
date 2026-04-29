@@ -152,7 +152,6 @@ _KNOWN_INSTITUTION_CODES: dict[str, str] = {
     "NTT": "JP",
     "Arm": "GB",
     "Thales": "FR",
-    "Samsung": "KR",
     "SkyPilot": "US",
     "UiT - The Arctic University of Norway": "NO",
     "TTI Chicago": "US",
