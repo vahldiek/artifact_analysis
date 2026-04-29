@@ -274,7 +274,7 @@ def aggregate_stats(all_stats):
             "zenodo_repos": 0,
             "total_views": 0,
             "total_downloads": 0,
-            "years": defaultdict(lambda: {"github_repos": 0, "stars": 0, "forks": 0}),
+            "years": defaultdict(lambda: {"github_repos": 0, "stars": 0, "forks": 0, "_star_values": [], "_fork_values": []}),
             "all_github_entries": [],
             "_seen_repos": set(),  # track repos already counted for this conf
         }
@@ -360,6 +360,8 @@ def aggregate_stats(all_stats):
                 by_conf[conf]["years"][year]["github_repos"] += 1
                 by_conf[conf]["years"][year]["stars"] += stars
                 by_conf[conf]["years"][year]["forks"] += forks
+                by_conf[conf]["years"][year]["_star_values"].append(stars)
+                by_conf[conf]["years"][year]["_fork_values"].append(forks)
 
             if repo_key not in by_year[year]["_seen_repos"]:
                 by_year[year]["_seen_repos"].add(repo_key)
@@ -417,6 +419,8 @@ def aggregate_stats(all_stats):
         year_list = []
         for yr in sorted(d["years"].keys()):
             yd = d["years"][yr]
+            yr_median_stars = round(statistics.median(yd["_star_values"]), 1) if yd["_star_values"] else 0
+            yr_median_forks = round(statistics.median(yd["_fork_values"]), 1) if yd["_fork_values"] else 0
             year_list.append(
                 {
                     "year": yr,
@@ -425,6 +429,8 @@ def aggregate_stats(all_stats):
                     "total_forks": yd["forks"],
                     "avg_stars": round(yd["stars"] / yd["github_repos"], 1) if yd["github_repos"] > 0 else 0,
                     "avg_forks": round(yd["forks"] / yd["github_repos"], 1) if yd["github_repos"] > 0 else 0,
+                    "median_stars": yr_median_stars,
+                    "median_forks": yr_median_forks,
                 }
             )
         # Top 5 repos by stars
@@ -655,8 +661,7 @@ def main():
         assets_dir.mkdir(parents=True, exist_ok=True)
         out_path = data_dir / "repo_stats.yml"
         yaml_data = {k: v for k, v in aggregated.items() if k != "all_github_repos"}
-        save_yaml(out_path, yaml_data)
-        logger.info(f"Written to {out_path}")
+        # by_area will be injected below after area medians are computed
 
         # Write per-repo detail JSON for CDF generation
         # Sort by URL for stable ordering across runs (ThreadPoolExecutor
@@ -745,6 +750,26 @@ def main():
         save_json(assets_dir / "systems_top_repos.json", sys_top)
         save_json(assets_dir / "security_top_repos.json", sec_top)
         logger.info(f"Written top repos: all={len(all_top)}, systems={len(sys_top)}, security={len(sec_top)}")
+
+        # Compute by_area stats (median, total, max) from all_github_repos
+        by_area = []
+        for area_name in ("systems", "security"):
+            area_repos = [r for r in all_repos if r.get("area") == area_name]
+            if area_repos:
+                area_stars = [r.get("stars", 0) for r in area_repos]
+                area_forks = [r.get("forks", 0) for r in area_repos]
+                by_area.append({
+                    "name": area_name,
+                    "github_repos": len(area_repos),
+                    "total_stars": sum(area_stars),
+                    "total_forks": sum(area_forks),
+                    "median_stars": round(statistics.median(area_stars), 1),
+                    "median_forks": round(statistics.median(area_forks), 1),
+                    "max_stars": max(area_stars),
+                })
+        yaml_data["by_area"] = by_area
+        save_yaml(out_path, yaml_data)
+        logger.info(f"Written to {out_path}")
 
         # Write repo_stats_yearly.json — per-year stats split by area (all/systems/security)
         # Used by website repo_stats pages as a downloadable data file
