@@ -182,7 +182,6 @@ class TestDeduplication:
         assert agg["overall"]["total_stars"] == 30
 
 
-
 class TestExcludedRepos:
     """Test the exclusion list machinery."""
 
@@ -196,5 +195,3 @@ class TestExcludedRepos:
     def test_is_excluded_repo_nonmatch(self):
         assert not _is_excluded_repo("https://github.com/user/my-artifact")
         assert not _is_excluded_repo("https://zenodo.org/record/12345")
-
-

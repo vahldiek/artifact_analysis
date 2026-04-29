@@ -58,8 +58,6 @@ def _is_excluded_repo(url: str) -> bool:
     return owner_repo in _load_excluded_repos()
 
 
-
-
 def collect_stats_for_results(results, url_keys=None):
     """Collect repository stats for all artifacts.
 
