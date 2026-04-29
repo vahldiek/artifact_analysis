@@ -30,9 +30,10 @@
 
 - canonical: Max Planck Society
   patterns:
-    - 'Max\s+Planck'
+    - 'Max[\s-]+Planck'
     - '\bMPI[- ]?SWS\b'
     - '\bMPI[- ]?SP\b'
+    - '\bMPI[- ]?INF\b'
 
 - canonical: CISPA Helmholtz Center for Information Security
   patterns:
@@ -489,6 +490,9 @@
   patterns:
     - '^University\s+of\s+Massachusetts[\s-]+Amherst\b'
     - '^University\s+of\s+Massachusetts\s+Amherst\b'
+    - '^Univ\.?\s+of\s+Massachusetts\s+Amherst\b'
+    - '^UMass\s+Amherst\b'
+    - '^Umass\s+Amherst\b'
 
 # ── Typo fixes ──
 - canonical: "New York University Abu Dhabi"
