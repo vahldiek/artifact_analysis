@@ -16,7 +16,7 @@ from typing import Optional
 
 from src.utils.io.io import load_json, save_json
 
-from ..utils.conference import normalize_name
+from ..utils.normalization.conference import normalize_name
 
 logger = logging.getLogger(__name__)
 

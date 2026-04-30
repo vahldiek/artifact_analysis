@@ -2,7 +2,7 @@
 data/dblp/
 logs/
 site/
-output/
+/output/
 
 # Python
 __pycache__/

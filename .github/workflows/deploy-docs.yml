@@ -36,11 +36,6 @@ jobs:
           pip install -r requirements-ci.txt
           pip install -r requirements-docs.txt
 
-      - name: Debug - verify module exists
-        run: |
-          ls -la src/generators/output/generate_paper_index.py
-          python -c "import griffe; print(griffe.load('src.generators.output.generate_paper_index', search_paths=['.']))"
-
       - name: Build documentation
         run: mkdocs build --strict 2>&1 || mkdocs build
 
