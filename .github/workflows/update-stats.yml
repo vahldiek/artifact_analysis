@@ -86,7 +86,7 @@ jobs:
       - name: Generate statistics
         run: |
           cd reprodb-pipeline
-          python -m src.generators.generate_statistics \
+          python -m src.generators.output.generate_statistics \
             --conf_regex '.*20[12][0-9]' \
             --output_dir ../website/src
       
@@ -101,7 +101,7 @@ jobs:
             REFRESH_FLAG="--refresh"
           fi
           cd reprodb-pipeline
-          python -m src.generators.generate_repo_stats \
+          python -m src.generators.repository.generate_repo_stats \
             --conf_regex '.*20[12][0-9]' \
             --output_dir ../website/src \
             $REFRESH_FLAG || echo "⚠️ Repository stats generation skipped"
@@ -131,7 +131,7 @@ jobs:
       - name: Generate per-area author data
         run: |
           cd reprodb-pipeline
-          python -m src.generators.generate_area_authors --data_dir ../website/src
+          python -m src.generators.authors.generate_area_authors --data_dir ../website/src
       
       - name: Generate committee statistics
         run: |
@@ -143,45 +143,45 @@ jobs:
       - name: Generate combined rankings
         run: |
           cd reprodb-pipeline
-          python -m src.generators.generate_combined_rankings --data_dir ../website/src
+          python -m src.generators.rankings.generate_combined_rankings --data_dir ../website/src
       
       - name: Generate institution rankings
         run: |
           cd reprodb-pipeline
-          python -m src.generators.generate_institution_rankings --data_dir ../website/src
+          python -m src.generators.rankings.generate_institution_rankings --data_dir ../website/src
       
       - name: Generate author profiles
         run: |
           cd reprodb-pipeline
-          python -m src.generators.generate_author_profiles --data_dir ../website/src
+          python -m src.generators.authors.generate_author_profiles --data_dir ../website/src
       
       - name: Generate search data
         run: |
           cd reprodb-pipeline
-          python -m src.generators.generate_search_data --data_dir ../website/src
+          python -m src.generators.output.generate_search_data --data_dir ../website/src
       
       - name: Update ranking history
         run: |
           cd reprodb-pipeline
-          python -m src.generators.generate_ranking_history --data_dir ../website/src
+          python -m src.generators.rankings.generate_ranking_history --data_dir ../website/src
 
       - name: Generate artifact availability
         run: |
           cd reprodb-pipeline
-          python -m src.generators.generate_artifact_availability \
+          python -m src.generators.repository.generate_artifact_availability \
             --conf_regex '.*20[12][0-9]' \
             --output_dir ../website/src || echo "⚠️ Artifact availability check failed"
 
       - name: Generate visualizations
         run: |
           cd reprodb-pipeline
-          python -m src.generators.generate_visualizations --data_dir ../website/src || echo "⚠️ Visualization generation failed"
+          python -m src.generators.output.generate_visualizations --data_dir ../website/src || echo "⚠️ Visualization generation failed"
 
       - name: Collect paper citation counts
         timeout-minutes: 60
         run: |
           cd reprodb-pipeline
-          python -m src.generators.generate_paper_citations_doi --data_dir ../website/src || echo "⚠️ Paper citation collection failed"
+          python -m src.generators.citations.generate_paper_citations_doi --data_dir ../website/src || echo "⚠️ Paper citation collection failed"
 
       - name: Verify generated files
         run: |

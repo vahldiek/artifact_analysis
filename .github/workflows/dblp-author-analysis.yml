@@ -67,7 +67,7 @@ jobs:
       
       - name: Generate author statistics
         run: |
-          python -m src.generators.generate_author_stats \
+          python -m src.generators.authors.generate_author_stats \
             --dblp_file data/dblp/dblp.xml.gz \
             --data_dir website/src \
             --output_dir website/src
