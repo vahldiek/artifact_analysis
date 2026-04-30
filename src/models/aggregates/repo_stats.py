@@ -255,6 +255,24 @@ class OverallStats(BaseModel):
     model_config = {"extra": "forbid"}
 
 
+class AreaRepoStats(BaseModel):
+    """Repository metrics for a single research area (e.g. systems, security)."""
+
+    name: str = Field(description="Area name, e.g. 'systems' or 'security'.", examples=["systems"])
+    github_repos: int = Field(ge=0, description="Total GitHub repositories in this area.", examples=[700])
+    total_stars: int = Field(ge=0, description="Sum of stars across all repos in this area.", examples=[60000])
+    total_forks: int = Field(ge=0, description="Sum of forks across all repos in this area.", examples=[15000])
+    median_stars: float = Field(ge=0, description="Median star count per repository.", examples=[25.0])
+    median_forks: float = Field(ge=0, description="Median fork count per repository.", examples=[6.0])
+    p25_stars: float = Field(ge=0, description="25th percentile of stars.", examples=[8.0])
+    p75_stars: float = Field(ge=0, description="75th percentile of stars.", examples=[80.0])
+    p25_forks: float = Field(ge=0, description="25th percentile of forks.", examples=[2.0])
+    p75_forks: float = Field(ge=0, description="75th percentile of forks.", examples=[18.0])
+    max_stars: int = Field(ge=0, description="Maximum star count in this area.", examples=[5200])
+
+    model_config = {"extra": "forbid"}
+
+
 class RepoStatsSummary(BaseModel):
     """Aggregated repository metrics: overall stats, per-conference breakdowns, and yearly trends."""
 
@@ -264,6 +282,10 @@ class RepoStatsSummary(BaseModel):
     )
     by_year: list[YearRepoStats] = Field(
         description="Repository metrics grouped by year across all conferences, ordered chronologically."
+    )
+    by_area: list[AreaRepoStats] = Field(
+        default_factory=list,
+        description="Repository metrics grouped by research area (systems, security).",
     )
 
     model_config = {"extra": "forbid"}
