@@ -21,6 +21,7 @@ from pathlib import Path
 from src.utils.conference import parse_conf_year as _extract_conf_year
 from src.utils.io import save_json, save_yaml
 
+from .chair_stats import compute_chair_stats
 from .charting import generate_committee_charts
 from .classification import (
     _aggregate_across_conferences,
@@ -109,7 +110,16 @@ def generate_committee_data(conf_regex: str, output_dir):
         f"({member_summary['total_chairs']} include chair roles)"
     )
 
-    # ── 3c. Institution timeline ─────────────────────────────────────────────
+    # ── 3c. AE chair statistics ─────────────────────────────────────────────
+    logger.info("  Computing AE chair statistics...")
+    chair_data = compute_chair_stats(all_members, sys_members, sec_members, all_results, conf_to_area)
+    logger.info(
+        f"    Found {chair_data['summary']['total_chairs']} unique chairs "
+        f"({chair_data['summary']['repeat_chairs']} repeat, "
+        f"{chair_data['summary']['cross_conference_chairs']} cross-conference)"
+    )
+
+    # ── 3d. Institution timeline ─────────────────────────────────────────────
     logger.info("  Computing institution timeline...")
     inst_timeline = _compute_institution_timeline(classified, conf_to_area)
     logger.info(f"    Tracked {len(inst_timeline['unique_by_year'])} years of institution data")
@@ -204,6 +214,35 @@ def generate_committee_data(conf_regex: str, output_dir):
         ae_sec_path = output_dir / "assets/data/security_ae_members.json"
         save_json(ae_sec_path, sec_members)
         logger.info(f"  Wrote {ae_sec_path} ({len(sec_members)} members)")
+
+        # ── 5b. Chair statistics JSON files ──────────────────────────────────
+        chairs_all_path = output_dir / "assets/data/ae_chairs.json"
+        save_json(chairs_all_path, chair_data["chairs_all"])
+        logger.info(f"  Wrote {chairs_all_path} ({len(chair_data['chairs_all'])} chairs)")
+
+        chairs_sys_path = output_dir / "assets/data/systems_ae_chairs.json"
+        save_json(chairs_sys_path, chair_data["chairs_systems"])
+        logger.info(f"  Wrote {chairs_sys_path} ({len(chair_data['chairs_systems'])} chairs)")
+
+        chairs_sec_path = output_dir / "assets/data/security_ae_chairs.json"
+        save_json(chairs_sec_path, chair_data["chairs_security"])
+        logger.info(f"  Wrote {chairs_sec_path} ({len(chair_data['chairs_security'])} chairs)")
+
+        chair_stats_path = output_dir / "assets/data/chair_stats.json"
+        save_json(chair_stats_path, {
+            "summary": chair_data["summary"],
+            "chair_teams": chair_data["chair_teams"],
+            "pipeline": chair_data["pipeline"],
+            "retention": chair_data["retention"],
+            "cross_conference": chair_data["cross_conference"],
+        })
+        logger.info(f"  Wrote {chair_stats_path}")
+
+        # Add chair summary to the YAML data for Jekyll templates
+        committee_summary["chair_stats"] = chair_data["summary"]
+
+        # Re-write the YAML with chair stats included
+        save_yaml(yml_path, committee_summary)
 
         build_dir = output_dir / "_build"
         build_dir.mkdir(parents=True, exist_ok=True)

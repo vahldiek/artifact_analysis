@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 # list_wrapper == True means the top-level schema is ``type: array`` wrapping items.
 SCHEMA_REGISTRY: list[tuple[str, bool, str, str]] = [
     # (filename, is_array, module, class_name)
+    ("ae_chairs.schema.json", True, "src.models.ae_chairs", "AEChair"),
     ("ae_members.schema.json", True, "src.models.ae_members", "AEMember"),
     ("artifact_availability.schema.json", False, "src.models.artifact_availability", "ArtifactAvailability"),
     ("artifact_citations.schema.json", True, "src.models.artifact_citations", "ArtifactCitation"),
@@ -33,6 +34,7 @@ SCHEMA_REGISTRY: list[tuple[str, bool, str, str]] = [
     ("author_stats.schema.json", True, "src.models.author_stats", "AuthorStats"),
     ("combined_rankings.schema.json", True, "src.models.combined_rankings", "AuthorRanking"),
     ("committee_stats.schema.json", False, "src.models.committee_stats", "CommitteeStats"),
+    ("chair_stats.schema.json", False, "src.models.chair_stats", "ChairStats"),
     (
         "institution_ranking_history.schema.json",
         True,

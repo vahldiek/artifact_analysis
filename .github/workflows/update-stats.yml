@@ -216,6 +216,8 @@ jobs:
               ('artifact_availability.schema.json',    'website/src/assets/data/artifact_availability.json'),
               ('author_profiles.schema.json',          'website/src/assets/data/author_profiles.json'),
               ('ae_members.schema.json',               'website/src/assets/data/ae_members.json'),
+              ('ae_chairs.schema.json',                'website/src/assets/data/ae_chairs.json'),
+              ('chair_stats.schema.json',              'website/src/assets/data/chair_stats.json'),
               ('committee_stats.schema.json',          'website/src/assets/data/committee_stats.json'),
               ('participation_stats.schema.json',      'website/src/assets/data/participation_stats.json'),
               ('repo_stats.schema.json',               'website/src/assets/data/repo_stats.json'),

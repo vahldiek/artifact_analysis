@@ -166,7 +166,8 @@ output directory:
 | `_data/` | `combined_summary.yml`, `coverage.yml`, `navigation.yml` | YAML |
 | `assets/data/` | `artifacts.json`, `authors.json`, `summary.json`, `search_data.json` | JSON |
 | `assets/data/` | `combined_rankings.json`, `institution_rankings.json`, `author_profiles.json` | JSON |
-| `assets/data/` | `participation_stats.json`, `committee_stats.json` | JSON |
+| `assets/data/` | `participation_stats.json`, `committee_stats.json`, `chair_stats.json` | JSON |
+| `assets/data/` | `ae_members.json`, `ae_chairs.json` (+ `{area}_` variants) | JSON |
 | `assets/charts/` | Per-conference and aggregate visualizations | SVG |
 
 ---
