@@ -525,6 +525,7 @@ def _compute_member_stats(all_results: dict, conf_to_area: dict, classified: dic
         "total_members": len(members_list),
         "total_members_systems": len(systems_members),
         "total_members_security": len(security_members),
+        "total_members_both": sum(1 for m in members_list if m["area"] == "both"),
         "total_chairs": sum(1 for m in members_list if m["chair_count"] > 0),
         "max_memberships": max((m["total_memberships"] for m in members_list), default=0),
     }

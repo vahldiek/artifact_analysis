@@ -127,6 +127,7 @@ def generate_committee_data(conf_regex: str, output_dir):
         "unique_members": member_summary["total_members"],
         "unique_members_systems": member_summary["total_members_systems"],
         "unique_members_security": member_summary["total_members_security"],
+        "unique_members_both": member_summary["total_members_both"],
         "recurring_chairs": member_summary["total_chairs"],
         "top_countries": [{"name": k, "count": v} for k, v in _top_n(country_all, 15)],
         "top_countries_systems": [{"name": k, "count": v} for k, v in _top_n(country_sys, 15)],
