@@ -237,6 +237,7 @@ def generate_committee_data(conf_regex: str, output_dir):
                 "pipeline": chair_data["pipeline"],
                 "retention": chair_data["retention"],
                 "cross_conference": chair_data["cross_conference"],
+                "geographic": chair_data["geographic"],
             },
         )
         logger.info(f"  Wrote {chair_stats_path}")
